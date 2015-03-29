@@ -96,7 +96,7 @@ public class GravityScript : MonoBehaviour {
 			rb.angularVelocity = Vector3.zero;
 
 			float distance = 40;
-			float force = 4;
+			float force = 6;
 
 			float position_x = 0;
 			float position_y = 0;
