@@ -11,7 +11,7 @@ public class GravityScript : MonoBehaviour {
 
 	public GravityScript[] celestialBodies;
 	
-	private Rigidbody rb;
+	public Rigidbody rb;
 
 	private double bigG;
 
@@ -69,21 +69,26 @@ public class GravityScript : MonoBehaviour {
 
 	void calculateAttraction( GravityScript Body )
 	{
-		float distance_x = Body.transform.position.x - transform.position.x;
-		float distance_y = Body.transform.position.y - transform.position.y;
-		float distance_z = Body.transform.position.z - transform.position.z;
 
-		float distance = Mathf.Sqrt( Mathf.Pow ( distance_x, 2 ) + Mathf.Pow ( distance_y, 2 ) );
-		      distance = Mathf.Sqrt( Mathf.Pow ( distance, 2 ) + Mathf.Pow ( distance_z, 2 ) );
+		//rigidbody.AddForce((planet.position - transform.position).normalized * acceleration);
 
-		double force = bigG * mass * Body.mass / Mathf.Pow( distance, 2 );
-		      // force = force / mass;
+		if (isFixed == 0) {
+			float distance_x = Body.transform.position.x - transform.position.x;
+			float distance_y = Body.transform.position.y - transform.position.y;
+			float distance_z = Body.transform.position.z - transform.position.z;
 
-		float force_x = (float)force * distance_x / distance; 
-		float force_y = (float)force * distance_y / distance; 
-		float force_z = (float)force * distance_z / distance; 
+			float distance = Mathf.Sqrt (Mathf.Pow (distance_x, 2) + Mathf.Pow (distance_y, 2));
+			distance = Mathf.Sqrt (Mathf.Pow (distance, 2) + Mathf.Pow (distance_z, 2));
 
-		rb.AddForce( new Vector3( force_x, force_y, force_z ) );
+			double force = bigG * mass * Body.mass / Mathf.Pow (distance, 2);
+			// force = force / mass;
+
+			float force_x = (float)force * distance_x / distance; 
+			float force_y = (float)force * distance_y / distance; 
+			float force_z = (float)force * distance_z / distance; 
+
+			rb.AddForce (new Vector3 (force_x, force_y, force_z));
+		}
 	}
 
 	void PositionRandomly()
@@ -132,7 +137,25 @@ public class GravityScript : MonoBehaviour {
 
 	void OnTriggerEnter( Collider Body )
 	{
-		PositionRandomly ();
+		//if (Body.gameObject.isFixed == 1) {
+			PositionRandomly ();
+		//} 
+//		else if( isFixed != 1 )  
+//		{
+//			if( Body.radius < radius )
+//			{
+//				AbsorbMass( Body.gameObject );
+//			}
+//			else if ( Body.gameObject.rb.velocity < rb.velocity )
+//			{
+//				AbsorbMass( Body.gameObject );
+//			}
+//		}
 	}
+
+//	void AbsorbMass( GameObject Body )
+//	{
+//		mass += Body.mass;
+//	}
 
 }
