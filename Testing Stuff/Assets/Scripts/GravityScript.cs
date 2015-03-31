@@ -43,7 +43,7 @@ public class GravityScript : MonoBehaviour {
 	{
 		foreach (GravityScript Body in celestialBodies)
 		{
-			if( Body.name != name )
+			if( Body != null && Body.name != name )
 			{
 				calculateAttraction( Body );
 			}
@@ -51,17 +51,17 @@ public class GravityScript : MonoBehaviour {
 
 		float maxDistance = 200;
 
-		if (transform.position.x > maxDistance || transform.position.x < -maxDistance) 
+		if (transform.position.x > maxDistance || transform.localPosition.x < -maxDistance) 
 		{
 			PositionRandomly();
 		}
 		
-		if (transform.position.y > maxDistance || transform.position.y < -maxDistance) 
+		if (transform.localPosition.y > maxDistance || transform.localPosition.y < -maxDistance) 
 		{
 			PositionRandomly();
 		}
 		
-		if (transform.position.z > maxDistance || transform.position.z < -maxDistance) 
+		if (transform.localPosition.z > maxDistance || transform.localPosition.z < -maxDistance) 
 		{
 			PositionRandomly();
 		}
@@ -84,7 +84,6 @@ public class GravityScript : MonoBehaviour {
 			distance = Mathf.Sqrt (Mathf.Pow (distance, 2) + Mathf.Pow (distance_z, 2));
 
 			double force = bigG * mass * Body.mass / Mathf.Pow (distance, 2);
-			// force = force / mass;
 
 			float force_x = (float)force * distance_x / distance; 
 			float force_y = (float)force * distance_y / distance; 
@@ -104,7 +103,7 @@ public class GravityScript : MonoBehaviour {
 			rb.angularVelocity = Vector3.zero;
 
 			float distance = 40;
-			float force = 6;
+			float force = 3;
 
 			float position_x = 0;
 			float position_y = 0;
@@ -128,9 +127,9 @@ public class GravityScript : MonoBehaviour {
 			transform.position = new Vector3( position_x, position_y, position_z );
 			InitialPosition = position_x + " - " + position_y + " - " + position_z;
 
-			float velocity_x = (Random.value * force * 2) - force;
-			float velocity_y = 0;//(Random.value * force * 2) - force;
-			float velocity_z = (Random.value * force * 2) - force;
+			float velocity_x = ( ( Random.value * force * 2 ) - force ) * mass;
+			float velocity_y = 0.0f; //( ( Random.value * force * 2 ) - force ) * mass;
+			float velocity_z = ( ( Random.value * force * 2 ) - force ) * mass;
 
 			rb.velocity = new Vector3 (velocity_x, velocity_y, velocity_z);
 			InitialVelocity = velocity_x + " - " + velocity_y + " - " + velocity_z;
@@ -162,10 +161,14 @@ public class GravityScript : MonoBehaviour {
 	{
 		foreach (GravityScript Body in celestialBodies)
 		{
-			if( Body.name == name )
+			if( Body != null && Body.name == name )
 			{
 
+				rb.velocity = ( Body.rb.velocity * Body.mass ) + ( rb.velocity * mass );
+
 				mass += Body.mass;
+
+				rb.velocity = rb.velocity / mass;
 
 				volume = mass / density;
 
@@ -175,7 +178,7 @@ public class GravityScript : MonoBehaviour {
 
 				transform.localScale = new Vector3( scale, scale, scale );
 
-				rb.velocity += Body.rb.velocity;
+				rb.mass = mass;
 
 				Destroy( Body.gameObject );
 
