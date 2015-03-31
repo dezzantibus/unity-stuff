@@ -7,8 +7,10 @@ public class GravityScript : MonoBehaviour {
 	
 	public float radius;
 	
+	public float volume;
+	
 	public float mass;
-
+	
 	public GravityScript[] celestialBodies;
 	
 	public Rigidbody rb;
@@ -28,7 +30,8 @@ public class GravityScript : MonoBehaviour {
 	{
 		bigG = 3;
 		radius = transform.localScale.x / 2;
-		mass = Mathf.Pow( radius, 3 ) * Mathf.PI * 4 / 3;
+		volume = Mathf.Pow( radius, 3 ) * Mathf.PI * 4 / 3;
+		mass = density * volume;
 		celestialBodies = GameObject.FindObjectsOfType<GravityScript>();
 		rb = GetComponent<Rigidbody> ();
 		rb.mass = mass;
@@ -137,25 +140,47 @@ public class GravityScript : MonoBehaviour {
 
 	void OnTriggerEnter( Collider Body )
 	{
-		//if (Body.gameObject.isFixed == 1) {
+
+		if(Body.gameObject.name == "Sun") 
+		{
 			PositionRandomly ();
-		//} 
-//		else if( isFixed != 1 )  
-//		{
-//			if( Body.radius < radius )
-//			{
-//				AbsorbMass( Body.gameObject );
-//			}
-//			else if ( Body.gameObject.rb.velocity < rb.velocity )
-//			{
-//				AbsorbMass( Body.gameObject );
-//			}
-//		}
+		} 
+		else if( isFixed != 1 ) 
+		{
+			if( Body.gameObject.transform.localScale.x < transform.localScale.x )
+			{
+				AbsorbMass( Body.gameObject.name );
+			}
+			else if ( Body.gameObject.transform.localScale.x == transform.localScale.x && Body.gameObject.GetComponent<Rigidbody> ().velocity.magnitude < rb.velocity.magnitude )
+			{
+				AbsorbMass( Body.gameObject.name );
+			}
+		}
 	}
 
-//	void AbsorbMass( GameObject Body )
-//	{
-//		mass += Body.mass;
-//	}
+	void AbsorbMass( string name )
+	{
+		foreach (GravityScript Body in celestialBodies)
+		{
+			if( Body.name == name )
+			{
+
+				mass += Body.mass;
+
+				volume = mass / density;
+
+				radius = Mathf.Pow( ( ( volume * 3 ) / ( 4 * Mathf.PI ) ), 1f / 3f );
+
+				float scale = radius * 2;
+
+				transform.localScale = new Vector3( scale, scale, scale );
+
+				rb.velocity += Body.rb.velocity;
+
+				Destroy( Body.gameObject );
+
+			}
+		}
+	}
 
 }
